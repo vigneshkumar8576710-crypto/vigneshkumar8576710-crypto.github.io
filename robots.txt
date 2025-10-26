@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vigneshkumar8576710-crypto.github.io/sitemap.xml
