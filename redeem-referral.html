@@ -168,20 +168,12 @@
       myLink = `${BASE_URL}?ref=${myCode}`;
 
       // 3️⃣ Send new entry to Google Sheets
-      const formData = new URLSearchParams();
-formData.append("Name", name);
-formData.append("Email", email);
-formData.append("ReferralUsed", refInput || "");
-formData.append("MyCode", myCode);
-formData.append("MyLink", myLink);
+      // Set hidden inputs
+document.getElementById('myCodeInput').value = myCode;
+document.getElementById('myLinkInput').value = myLink;
 
-fetch(SHEETS_URL, {
-  method: "POST",
-  body: formData
-})
-.then(res => res.json())
-.then(console.log)
-.catch(console.error);
+// Submit the form to hidden iframe
+form.submit();
 
 
     // 4️⃣ Show referral info
