@@ -123,13 +123,23 @@
       showToast("Copied!");
     }
 
-    form.addEventListener('submit', e=>{
+    // Auto-fill referral code from URL
+    function getReferralFromURL(){
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ref') || "";
+    }
+    const incomingRef = getReferralFromURL();
+    if(incomingRef){
+      document.getElementById('refInput').value = incomingRef;
+    }
+
+    form.addEventListener('submit', async e=>{
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const refInput = document.getElementById('refInput').value.trim();
 
-      // generate code unique per user
+      // generate unique referral code
       const myCode = randomCode();
       const refLink = `${BASE_URL}?ref=${myCode}`;
 
@@ -140,25 +150,29 @@
       formPage.classList.add('hidden');
       referralPage.classList.remove('hidden');
 
-      // log optional referral use
+      // log referral usage
       if(refInput){
+        showToast(`You joined using referral code ${refInput}!`);
         console.log(`${name} joined with referral code ${refInput}`);
       }
 
       // send data to Google Sheets
-      fetch(SHEETS_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          Name: name,
-          Email: email,
-          ReferralUsed: refInput || "",
-          MyCode: myCode,
-          MyLink: refLink
-        })
-      })
-      .then(res => res.text())
-      .then(console.log)
-      .catch(console.error);
+      try {
+        const response = await fetch(SHEETS_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            Name: name,
+            Email: email,
+            ReferralUsed: refInput || "",
+            MyCode: myCode,
+            MyLink: refLink
+          })
+        });
+        const result = await response.text();
+        console.log(result);
+      } catch(err){
+        console.error(err);
+      }
     });
 
     document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
