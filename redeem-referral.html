@@ -1,204 +1,189 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Redeem App - Referral Program</title>
-  <style>
-    :root {
-      --bg:#f7fbff; --card:#fff; --accent:#2563eb; --muted:#6b7280;
-      --success:#16a34a; --radius:12px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
-    }
-    body {
-      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg,#eef6ff 0%,var(--bg) 100%);
-      padding:24px;
-    }
-    .card {
-      background:var(--card); width:100%; max-width:680px; border-radius:var(--radius);
-      box-shadow:0 8px 30px rgba(2,6,23,0.08); padding:22px; box-sizing:border-box;
-    }
-    h1{margin:0 0 8px;font-size:22px;color:#0f172a;}
-    p{margin:0 0 14px;color:var(--muted);}
-    label{display:block;font-size:14px;margin-top:12px;color:#0f172a;}
-    input {
-      width:100%; padding:10px; font-size:14px; border-radius:8px;
-      border:1px solid rgba(2,6,23,0.1); margin-top:6px; box-sizing:border-box;
-    }
-    button {
-      margin-top:18px; padding:10px 14px; border:0; border-radius:10px;
-      background:var(--accent); color:#fff; font-weight:600; cursor:pointer;
-      width:100%;
-    }
-    .hidden {display:none;}
-    .ref-section {text-align:center; padding:10px 0;}
-    .ref-code {
-      font-family:monospace; font-size:20px; padding:8px 14px; border-radius:8px;
-      background:#f3f8ff; display:inline-block; color:var(--accent);
-      border:1px dashed rgba(37,99,235,0.2);
-    }
-    .controls{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-    .controls button{width:auto;padding:8px 12px;font-size:14px;}
-    .small{font-size:13px;color:var(--muted);}
-    .qr{width:180px;height:180px;margin-top:10px;border-radius:10px;}
-    .toast{
-      position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;
-      padding:10px 14px;border-radius:10px;display:none;
-    }
-    input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Redeem App - Referral Program</title>
+<style>
+:root {
+  --bg:#f7fbff; --card:#fff; --accent:#2563eb; --muted:#6b7280;
+  --success:#16a34a; --radius:12px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+}
+body {
+  margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg,#eef6ff 0%,var(--bg) 100%);
+  padding:24px;
+}
+.card {
+  background:var(--card); width:100%; max-width:680px; border-radius:var(--radius);
+  box-shadow:0 8px 30px rgba(2,6,23,0.08); padding:22px; box-sizing:border-box;
+}
+h1{margin:0 0 8px;font-size:22px;color:#0f172a;}
+p{margin:0 0 14px;color:var(--muted);}
+label{display:block;font-size:14px;margin-top:12px;color:#0f172a;}
+input {
+  width:100%; padding:10px; font-size:14px; border-radius:8px;
+  border:1px solid rgba(2,6,23,0.1); margin-top:6px; box-sizing:border-box;
+}
+button {
+  margin-top:18px; padding:10px 14px; border:0; border-radius:10px;
+  background:var(--accent); color:#fff; font-weight:600; cursor:pointer;
+  width:100%;
+}
+.hidden {display:none;}
+.ref-section {text-align:center; padding:10px 0;}
+.ref-code {
+  font-family:monospace; font-size:20px; padding:8px 14px; border-radius:8px;
+  background:#f3f8ff; display:inline-block; color:var(--accent);
+  border:1px dashed rgba(37,99,235,0.2);
+}
+.controls{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.controls button{width:auto;padding:8px 12px;font-size:14px;}
+.small{font-size:13px;color:var(--muted);}
+.qr{width:180px;height:180px;margin-top:10px;border-radius:10px;}
+.toast{
+  position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;
+  padding:10px 14px;border-radius:10px;display:none;
+}
+input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
+</style>
 </head>
 <body>
-  <div class="card">
-    <div id="formPage">
-      <h1>Redeem App Referral Program</h1>
-      <p>Enter your details to get your referral code and start earning ₹10 rewards!</p>
+<div class="card">
+  <div id="formPage">
+    <h1>Redeem App Referral Program</h1>
+    <p>Enter your details to get your referral code and start earning ₹10 rewards!</p>
 
-      <form id="userForm" action="https://script.google.com/macros/s/AKfycbwFtsBxy6SWpp48yk_fmMguknQ7PkMdxu-8J4a0tbA3omBYqE1a-OljH74yysP_rDlx2g/exec" method="POST" target="hiddenFrame">
-        <label for="name">Your Name</label>
-        <input type="text" name="Name" id="name" required placeholder="Enter your name" />
+    <form id="userForm" action="https://script.google.com/macros/s/AKfycbwFtsBxy6SWpp48yk_fmMguknQ7PkMdxu-8J4a0tbA3omBYqE1a-OljH74yysP_rDlx2g/exec" method="POST" target="hiddenFrame">
+      <label for="name">Your Name</label>
+      <input type="text" name="Name" id="name" required placeholder="Enter your name" />
 
-        <label for="email">Email Address</label>
-        <input type="email" name="Email" id="email" required placeholder="Enter your email" />
+      <label for="email">Email Address</label>
+      <input type="email" name="Email" id="email" required placeholder="Enter your email" />
 
-        <label for="refInput">Referral Code (optional)</label>
-        <input type="text" name="ReferralUsed" id="refInput" placeholder="If you were invited, enter code" />
+      <label for="refInput">Referral Code (optional)</label>
+      <input type="text" name="ReferralUsed" id="refInput" placeholder="If you were invited, enter code" />
 
-        <input type="hidden" name="MyCode" id="myCodeInput" />
-        <input type="hidden" name="MyLink" id="myLinkInput" />
+      <input type="hidden" name="MyCode" id="myCodeInput" />
+      <input type="hidden" name="MyLink" id="myLinkInput" />
 
-        <button type="submit">Generate My Referral Code</button>
-      </form>
-    </div>
-
-    <div id="referralPage" class="hidden">
-      <h1>Welcome to Redeem App 🎉</h1>
-      <p>You’ll earn <strong>₹10</strong> for every <strong>3 friends</strong> you invite!</p>
-
-      <div class="ref-section">
-        <div>Your Referral Code:</div>
-        <div class="ref-code" id="refCode">---</div>
-        <div class="small" style="margin-top:4px;">Share this code or link below</div>
-        <div id="refLink" class="small" style="word-break:break-all;margin-top:4px;"></div>
-        <img id="qrImg" class="qr" alt="QR Code" />
-      </div>
-
-      <div class="controls">
-        <button id="copyCode">Copy Code</button>
-        <button id="copyLink">Copy Link</button>
-        <button id="shareBtn">Share</button>
-      </div>
-
-      <p class="small" style="margin-top:10px;">Invite 3 friends → Get ₹10 instantly!</p>
-    </div>
+      <button type="submit">Generate My Referral Code</button>
+    </form>
   </div>
 
-  <!-- Hidden iframe to submit form without reload -->
-  <iframe name="hiddenFrame" style="display:none;"></iframe>
+  <div id="referralPage" class="hidden">
+    <h1>Welcome to Redeem App 🎉</h1>
+    <p>You’ll earn <strong>₹10</strong> for every <strong>3 friends</strong> you invite!</p>
 
-  <div class="toast" id="toast">Copied!</div>
+    <div class="ref-section">
+      <div>Your Referral Code:</div>
+      <div class="ref-code" id="refCode">---</div>
+      <div class="small" style="margin-top:4px;">Share this code or link below</div>
+      <div id="refLink" class="small" style="word-break:break-all;margin-top:4px;"></div>
+      <img id="qrImg" class="qr" alt="QR Code" />
+    </div>
 
-  <script>
-  const form = document.getElementById('userForm');
-  const formPage = document.getElementById('formPage');
-  const referralPage = document.getElementById('referralPage');
-  const refCodeEl = document.getElementById('refCode');
-  const refLinkEl = document.getElementById('refLink');
-  const qrImgEl = document.getElementById('qrImg');
-  const toast = document.getElementById('toast');
-  const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
-  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwFtsBxy6SWpp48yk_fmMguknQ7PkMdxu-8J4a0tbA3omBYqE1a-OljH74yysP_rDlx2g/exec";
+    <div class="controls">
+      <button id="copyCode">Copy Code</button>
+      <button id="copyLink">Copy Link</button>
+      <button id="shareBtn">Share</button>
+    </div>
 
-  // Prefill referral code if ?ref= exists in URL
-  window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const refFromURL = params.get('ref');
-    if(refFromURL){
-      const refInput = document.getElementById('refInput');
-      refInput.value = refFromURL;
-      refInput.classList.add('prefilled');
-    }
-  });
+    <p class="small" style="margin-top:10px;">Invite 3 friends → Get ₹10 instantly!</p>
+  </div>
+</div>
 
-  function randomCode() {
-    return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
+<!-- Hidden iframe to submit form without reload -->
+<iframe name="hiddenFrame" style="display:none;"></iframe>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+const form = document.getElementById('userForm');
+const formPage = document.getElementById('formPage');
+const referralPage = document.getElementById('referralPage');
+const refCodeEl = document.getElementById('refCode');
+const refLinkEl = document.getElementById('refLink');
+const qrImgEl = document.getElementById('qrImg');
+const toast = document.getElementById('toast');
+const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+
+// Prefill referral code if ?ref= exists in URL
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const refFromURL = params.get('ref');
+  if(refFromURL){
+    const refInput = document.getElementById('refInput');
+    refInput.value = refFromURL;
+    refInput.classList.add('prefilled');
+  }
+});
+
+// Generate random referral code
+function randomCode() {
+  return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+// Show toast message
+function showToast(msg){
+  toast.textContent = msg;
+  toast.style.display = "block";
+  setTimeout(()=>toast.style.display="none",2000);
+}
+
+// Copy text helper
+function copyText(text){
+  navigator.clipboard.writeText(text);
+  showToast("Copied!");
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const refInput = document.getElementById('refInput').value.trim();
+
+  // 1️⃣ Validate referral code (optional)
+  if(refInput && refInput.length > 0){
+    // optionally, add fetch GET to check existence
   }
 
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.style.display = "block";
-    setTimeout(()=>toast.style.display="none",2000);
+  // 2️⃣ Generate new code & link
+  const myCode = randomCode();
+  const myLink = `${BASE_URL}?ref=${myCode}`;
+
+  // 3️⃣ Fill hidden inputs
+  document.getElementById('myCodeInput').value = myCode;
+  document.getElementById('myLinkInput').value = myLink;
+
+  // 4️⃣ Submit form (to Google Sheets)
+  form.submit();
+
+  // 5️⃣ Update UI immediately
+  refCodeEl.textContent = myCode;
+  refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
+  qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
+
+  formPage.classList.add('hidden');
+  referralPage.classList.remove('hidden');
+
+  if(refInput) console.log(`${name} joined with referral code ${refInput}`);
+});
+
+// Copy / Share buttons
+document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
+document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  const link = refLinkEl.textContent;
+  const text = `Join Redeem App using my referral code ${refCodeEl.textContent} and get ₹10 bonus after 3 invites! ${link}`;
+  if(navigator.share){
+    navigator.share({title:"Redeem App Invite", text, url:link});
+  } else {
+    copyText(text);
   }
-
-  async function getExistingCode(email) {
-    const res = await fetch(`${SHEETS_URL}?email=${encodeURIComponent(email)}`);
-    return res.json();
-  }
-
-  async function checkReferralCode(code) {
-    if(!code) return {exists: true}; // treat empty as optional
-    const res = await fetch(`${SHEETS_URL}?ref=${encodeURIComponent(code)}`);
-    return res.json();
-  }
-
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const refInput = document.getElementById('refInput').value.trim();
-
-    // 1️⃣ Validate entered referral code
-    if(refInput){
-      const checkRef = await checkReferralCode(refInput);
-      if(!checkRef.exists){
-        showToast("Entered referral code does not exist!");
-        return;
-      }
-    }
-
-    // 2️⃣ Check if email already has a code
-    let myCode, myLink;
-    const existing = await getExistingCode(email);
-    if(existing.status === "exists"){
-      myCode = existing.code;
-      myLink = existing.link;
-    } else {
-      myCode = randomCode();
-      myLink = `${BASE_URL}?ref=${myCode}`;
-
-      // 3️⃣ Send new entry to Google Sheets
-      // Set hidden inputs
-document.getElementById('myCodeInput').value = myCode;
-document.getElementById('myLinkInput').value = myLink;
-
-// Submit the form to hidden iframe
-form.submit();
-
-
-    // 4️⃣ Show referral info
-    document.getElementById('myCodeInput').value = myCode;
-    document.getElementById('myLinkInput').value = myLink;
-    refCodeEl.textContent = myCode;
-    refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
-    qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
-
-    formPage.classList.add('hidden');
-    referralPage.classList.remove('hidden');
-
-    if(refInput) console.log(`${name} joined with referral code ${refInput}`);
-  });
-
-  document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
-  document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
-  document.getElementById('shareBtn').addEventListener('click',()=>{
-    const link = refLinkEl.textContent;
-    const text = `Join Redeem App using my referral code ${refCodeEl.textContent} and get ₹10 bonus after 3 invites! ${link}`;
-    if(navigator.share){
-      navigator.share({title:"Redeem App Invite", text, url:link});
-    } else {
-      copyText(text);
-      showToast("Copied message to share!");
-    }
-  });
+});
 </script>
+</body>
+</html>
