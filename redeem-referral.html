@@ -32,18 +32,14 @@
       width:100%;
     }
     .hidden {display:none;}
-    .ref-section {
-      text-align:center; padding:10px 0;
-    }
+    .ref-section {text-align:center; padding:10px 0;}
     .ref-code {
       font-family:monospace; font-size:20px; padding:8px 14px; border-radius:8px;
       background:#f3f8ff; display:inline-block; color:var(--accent);
       border:1px dashed rgba(37,99,235,0.2);
     }
     .controls{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-    .controls button{
-      width:auto;padding:8px 12px;font-size:14px;
-    }
+    .controls button{width:auto;padding:8px 12px;font-size:14px;}
     .small{font-size:13px;color:var(--muted);}
     .qr{width:180px;height:180px;margin-top:10px;border-radius:10px;}
     .toast{
@@ -58,20 +54,18 @@
       <h1>Redeem App Referral Program</h1>
       <p>Enter your details to get your referral code and start earning ₹10 rewards!</p>
 
-      <!-- ✅ Updated form: submits directly to Google Sheets -->
-      <form id="userForm" method="POST" target="hiddenFrame">
+      <form id="userForm" action="https://script.google.com/macros/s/AKfycbzTuwMcPTS4RCXAtDz0ypqkcwygpmYBmVOEw7nPoR2_o-0I8fBZBdbpT_iONHfOXFZRTA/exec" method="POST" target="hiddenFrame">
         <label for="name">Your Name</label>
-        <input type="text" id="name" name="Name" required placeholder="Enter your name" />
+        <input type="text" name="Name" id="name" required placeholder="Enter your name" />
 
         <label for="email">Email Address</label>
-        <input type="email" id="email" name="Email" required placeholder="Enter your email" />
+        <input type="email" name="Email" id="email" required placeholder="Enter your email" />
 
         <label for="refInput">Referral Code (optional)</label>
-        <input type="text" id="refInput" name="ReferralUsed" placeholder="If you were invited, enter code" />
+        <input type="text" name="ReferralUsed" id="refInput" placeholder="If you were invited, enter code" />
 
-        <!-- Hidden fields for generated code & link -->
-        <input type="hidden" id="myCodeInput" name="MyCode" />
-        <input type="hidden" id="myLinkInput" name="MyLink" />
+        <input type="hidden" name="MyCode" id="myCodeInput" />
+        <input type="hidden" name="MyLink" id="myLinkInput" />
 
         <button type="submit">Generate My Referral Code</button>
       </form>
@@ -99,7 +93,7 @@
     </div>
   </div>
 
-  <!-- Hidden iframe for form submission -->
+  <!-- Hidden iframe to submit form without reload -->
   <iframe name="hiddenFrame" style="display:none;"></iframe>
 
   <div class="toast" id="toast">Copied!</div>
@@ -114,7 +108,6 @@
     const toast = document.getElementById('toast');
 
     const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
-    const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwzeU-qL2VJppRr2MWchU8R-R3KatJeiPAjvvzyAtCn07ztpq2EGg_vEcdNDrU9ntxC8Q/exec";
 
     function randomCode() {
       return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
@@ -131,28 +124,22 @@
       showToast("Copied!");
     }
 
-    // ✅ Generate referral code before submitting
-    form.addEventListener('submit', e=>{
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const refInput = document.getElementById('refInput').value.trim();
-
+    form.addEventListener('submit', e => {
       const myCode = randomCode();
-      const refLink = `${BASE_URL}?ref=${myCode}`;
+      const myLink = `${BASE_URL}?ref=${myCode}`;
 
-      // Update hidden inputs
       document.getElementById('myCodeInput').value = myCode;
-      document.getElementById('myLinkInput').value = refLink;
+      document.getElementById('myLinkInput').value = myLink;
 
-      // Show referral page
       refCodeEl.textContent = myCode;
-      refLinkEl.innerHTML = `<a href="${refLink}" target="_blank">${refLink}</a>`;
-      qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(refLink);
+      refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
+      qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
+
       formPage.classList.add('hidden');
       referralPage.classList.remove('hidden');
 
-      if(refInput){
-        console.log(`${name} joined with referral code ${refInput}`);
+      if(document.getElementById('refInput').value.trim()) {
+        console.log(`${document.getElementById('name').value} joined with referral code ${document.getElementById('refInput').value}`);
       }
     });
 
