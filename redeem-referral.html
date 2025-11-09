@@ -55,7 +55,7 @@ input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
     <h1>Redeem App Referral Program</h1>
     <p>Enter your details to get your referral code and start earning ₹10 rewards!</p>
 
-    <form id="userForm" action="https://script.google.com/macros/s/AKfycbwFtsBxy6SWpp48yk_fmMguknQ7PkMdxu-8J4a0tbA3omBYqE1a-OljH74yysP_rDlx2g/exec" method="POST" target="hiddenFrame">
+    <form id="userForm" method="POST">
       <label for="name">Your Name</label>
       <input type="text" name="Name" id="name" required placeholder="Enter your name" />
 
@@ -94,7 +94,6 @@ input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
   </div>
 </div>
 
-<iframe name="hiddenFrame" style="display:none;"></iframe>
 <div class="toast" id="toast">Copied!</div>
 
 <script>
@@ -119,92 +118,68 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Generate random referral code
 function randomCode() {
   return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
 }
 
-// Show toast message
 function showToast(msg){
   toast.textContent = msg;
   toast.style.display = "block";
   setTimeout(()=>toast.style.display="none",2000);
 }
 
-// Copy text helper
 function copyText(text){
   navigator.clipboard.writeText(text);
   showToast("Copied!");
 }
 
-async function getExistingCode(email){
-  const res = await fetch(`${SHEETS_URL}?email=${encodeURIComponent(email)}`);
-  return res.json();
-}
-
-async function checkReferralCode(code){
-  if(!code) return {exists:true};
-  const res = await fetch(`${SHEETS_URL}?ref=${encodeURIComponent(code)}`);
-  return res.json();
-}
-
+// ✅ Fixed submit handler
 form.addEventListener('submit', async e => {
   e.preventDefault();
+
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const refInput = document.getElementById('refInput').value.trim();
 
-  // 1️⃣ Validate entered referral code
-  if(refInput){
-    const refData = await checkReferralCode(refInput);
-    if(!refData.exists){
-      showToast("Entered referral code does not exist!");
-      return;
-    }
-  }
-
-  // 2️⃣ Check if email already exists
   let myCode, myLink;
-  const emailData = await getExistingCode(email);
+  try {
+    const res = await fetch(`${SHEETS_URL}?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
 
-  if(emailData.status === "exists"){
-    myCode = emailData.code;
-    myLink = emailData.link;
-  } else {
-    myCode = randomCode();
-    myLink = `${BASE_URL}?ref=${myCode}`;
+    if(data.status === "exists"){
+      myCode = data.code;
+      myLink = data.link;
+    } else {
+      myCode = randomCode();
+      myLink = `${BASE_URL}?ref=${myCode}`;
 
-    // 3️⃣ Submit new entry to Google Sheets
-    const formData = new URLSearchParams();
-    formData.append("Name", name);
-    formData.append("Email", email);
-    formData.append("ReferralUsed", refInput || "");
-    formData.append("MyCode", myCode);
-    formData.append("MyLink", myLink);
+      const formData = new URLSearchParams();
+      formData.append("Name", name);
+      formData.append("Email", email);
+      formData.append("ReferralUsed", refInput || "");
+      formData.append("MyCode", myCode);
+      formData.append("MyLink", myLink);
 
-    fetch(SHEETS_URL, {
-      method: "POST",
-      body: formData
-    })
-    .then(res=>res.json())
-    .then(console.log)
-    .catch(console.error);
+      await fetch(SHEETS_URL, { method: "POST", body: formData });
+    }
+
+    document.getElementById('myCodeInput').value = myCode;
+    document.getElementById('myLinkInput').value = myLink;
+
+    refCodeEl.textContent = myCode;
+    refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
+    qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
+
+    formPage.classList.add('hidden');
+    referralPage.classList.remove('hidden');
+
+    if(refInput) console.log(`${name} joined with referral code ${refInput}`);
+  } catch(err){
+    console.error(err);
+    showToast("Something went wrong. Try again!");
   }
-
-  // 4️⃣ Show referral info
-  document.getElementById('myCodeInput').value = myCode;
-  document.getElementById('myLinkInput').value = myLink;
-  refCodeEl.textContent = myCode;
-  refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
-  qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
-
-  formPage.classList.add('hidden');
-  referralPage.classList.remove('hidden');
-
-  if(refInput) console.log(`${name} joined with referral code ${refInput}`);
 });
 
-// Copy / Share buttons
 document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
 document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
 document.getElementById('shareBtn').addEventListener('click',()=>{
