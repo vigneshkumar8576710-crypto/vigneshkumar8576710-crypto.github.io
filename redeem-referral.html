@@ -106,6 +106,7 @@
     const toast = document.getElementById('toast');
 
     const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+    const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwx5cL6eIpwGZREpGMmSEANwsfpWWpBwy-ZIhoLG6NpBmjRIe_M6aSTkfqXf62HXn8X1A/exec";
 
     function randomCode() {
       return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
@@ -128,16 +129,14 @@
       const email = document.getElementById('email').value.trim();
       const refInput = document.getElementById('refInput').value.trim();
 
-      // generate code unique per user (simplified)
+      // generate code unique per user
       const myCode = randomCode();
       const refLink = `${BASE_URL}?ref=${myCode}`;
 
-      // show next page
+      // show referral page
       refCodeEl.textContent = myCode;
-      refLinkEl.textContent = refLink;
       refLinkEl.innerHTML = `<a href="${refLink}" target="_blank">${refLink}</a>`;
       qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(refLink);
-
       formPage.classList.add('hidden');
       referralPage.classList.remove('hidden');
 
@@ -145,16 +144,25 @@
       if(refInput){
         console.log(`${name} joined with referral code ${refInput}`);
       }
+
+      // send data to Google Sheets
+      fetch(SHEETS_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          Name: name,
+          Email: email,
+          ReferralUsed: refInput || "",
+          MyCode: myCode,
+          MyLink: refLink
+        })
+      })
+      .then(res => res.text())
+      .then(console.log)
+      .catch(console.error);
     });
 
-    document.getElementById('copyCode').addEventListener('click',()=>{
-      copyText(refCodeEl.textContent);
-    });
-
-    document.getElementById('copyLink').addEventListener('click',()=>{
-      copyText(refLinkEl.textContent);
-    });
-
+    document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
+    document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
     document.getElementById('shareBtn').addEventListener('click',()=>{
       const link = refLinkEl.textContent;
       const text = `Join Redeem App using my referral code ${refCodeEl.textContent} and get ₹10 bonus after 3 invites! ${link}`;
