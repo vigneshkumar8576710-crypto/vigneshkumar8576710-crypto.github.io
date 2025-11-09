@@ -100,72 +100,113 @@
   <div class="toast" id="toast">Copied!</div>
 
   <script>
-    const form = document.getElementById('userForm');
-    const formPage = document.getElementById('formPage');
-    const referralPage = document.getElementById('referralPage');
-    const refCodeEl = document.getElementById('refCode');
-    const refLinkEl = document.getElementById('refLink');
-    const qrImgEl = document.getElementById('qrImg');
-    const toast = document.getElementById('toast');
-    const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+  const form = document.getElementById('userForm');
+  const formPage = document.getElementById('formPage');
+  const referralPage = document.getElementById('referralPage');
+  const refCodeEl = document.getElementById('refCode');
+  const refLinkEl = document.getElementById('refLink');
+  const qrImgEl = document.getElementById('qrImg');
+  const toast = document.getElementById('toast');
+  const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbx0TgyLKup6n-2mCmzwrzYb4uHYzZTwGt74IBw1vvjZ5K6duGO6VQL0nj5Qoeeb-rvrAA/exec";
 
-    // Prefill referral code if ?ref= exists in URL
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const refFromURL = params.get('ref');
-      if(refFromURL){
-        const refInput = document.getElementById('refInput');
-        refInput.value = refFromURL;
-        refInput.classList.add('prefilled');
+  // Prefill referral code if ?ref= exists in URL
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const refFromURL = params.get('ref');
+    if(refFromURL){
+      const refInput = document.getElementById('refInput');
+      refInput.value = refFromURL;
+      refInput.classList.add('prefilled');
+    }
+  });
+
+  function randomCode() {
+    return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.display = "block";
+    setTimeout(()=>toast.style.display="none",2000);
+  }
+
+  async function getExistingCode(email) {
+    const res = await fetch(`${SHEETS_URL}?email=${encodeURIComponent(email)}`);
+    return res.json();
+  }
+
+  async function checkReferralCode(code) {
+    if(!code) return {exists: true}; // treat empty as optional
+    const res = await fetch(`${SHEETS_URL}?ref=${encodeURIComponent(code)}`);
+    return res.json();
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const refInput = document.getElementById('refInput').value.trim();
+
+    // 1️⃣ Validate entered referral code
+    if(refInput){
+      const checkRef = await checkReferralCode(refInput);
+      if(!checkRef.exists){
+        showToast("Entered referral code does not exist!");
+        return;
       }
-    });
-
-    function randomCode() {
-      return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
     }
 
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.style.display = "block";
-      setTimeout(()=>toast.style.display="none",2000);
+    // 2️⃣ Check if email already has a code
+    let myCode, myLink;
+    const existing = await getExistingCode(email);
+    if(existing.status === "exists"){
+      myCode = existing.code;
+      myLink = existing.link;
+    } else {
+      myCode = randomCode();
+      myLink = `${BASE_URL}?ref=${myCode}`;
+
+      // 3️⃣ Send new entry to Google Sheets
+      fetch(SHEETS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Name: name,
+          Email: email,
+          ReferralUsed: refInput || "",
+          MyCode: myCode,
+          MyLink: myLink
+        })
+      })
+      .then(res => res.json())
+      .then(console.log)
+      .catch(console.error);
     }
 
-    async function copyText(text){
-      await navigator.clipboard.writeText(text);
-      showToast("Copied!");
+    // 4️⃣ Show referral info
+    document.getElementById('myCodeInput').value = myCode;
+    document.getElementById('myLinkInput').value = myLink;
+    refCodeEl.textContent = myCode;
+    refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
+    qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
+
+    formPage.classList.add('hidden');
+    referralPage.classList.remove('hidden');
+
+    if(refInput) console.log(`${name} joined with referral code ${refInput}`);
+  });
+
+  document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
+  document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
+  document.getElementById('shareBtn').addEventListener('click',()=>{
+    const link = refLinkEl.textContent;
+    const text = `Join Redeem App using my referral code ${refCodeEl.textContent} and get ₹10 bonus after 3 invites! ${link}`;
+    if(navigator.share){
+      navigator.share({title:"Redeem App Invite", text, url:link});
+    } else {
+      copyText(text);
+      showToast("Copied message to share!");
     }
-
-    form.addEventListener('submit', e => {
-      const myCode = randomCode();
-      const myLink = `${BASE_URL}?ref=${myCode}`;
-
-      document.getElementById('myCodeInput').value = myCode;
-      document.getElementById('myLinkInput').value = myLink;
-
-      refCodeEl.textContent = myCode;
-      refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
-      qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
-
-      formPage.classList.add('hidden');
-      referralPage.classList.remove('hidden');
-
-      if(document.getElementById('refInput').value.trim()) {
-        console.log(`${document.getElementById('name').value} joined with referral code ${document.getElementById('refInput').value}`);
-      }
-    });
-
-    document.getElementById('copyCode').addEventListener('click',()=>copyText(refCodeEl.textContent));
-    document.getElementById('copyLink').addEventListener('click',()=>copyText(refLinkEl.textContent));
-    document.getElementById('shareBtn').addEventListener('click',()=>{
-      const link = refLinkEl.textContent;
-      const text = `Join Redeem App using my referral code ${refCodeEl.textContent} and get ₹10 bonus after 3 invites! ${link}`;
-      if(navigator.share){
-        navigator.share({title:"Redeem App Invite", text, url:link});
-      } else {
-        copyText(text);
-        showToast("Copied message to share!");
-      }
-    });
-  </script>
-</body>
-</html>
+  });
+</script>
