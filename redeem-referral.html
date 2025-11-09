@@ -46,6 +46,7 @@
       position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;
       padding:10px 14px;border-radius:10px;display:none;
     }
+    input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
   </style>
 </head>
 <body>
@@ -106,8 +107,18 @@
     const refLinkEl = document.getElementById('refLink');
     const qrImgEl = document.getElementById('qrImg');
     const toast = document.getElementById('toast');
-
     const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+
+    // Prefill referral code if ?ref= exists in URL
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const refFromURL = params.get('ref');
+      if(refFromURL){
+        const refInput = document.getElementById('refInput');
+        refInput.value = refFromURL;
+        refInput.classList.add('prefilled');
+      }
+    });
 
     function randomCode() {
       return "RD" + Math.random().toString(36).substring(2,8).toUpperCase();
