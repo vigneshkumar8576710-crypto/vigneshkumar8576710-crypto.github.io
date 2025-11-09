@@ -94,9 +94,7 @@ input.prefilled {border:2px solid #2563eb; background:#f0f7ff;}
   </div>
 </div>
 
-<!-- Hidden iframe to submit form without reload -->
 <iframe name="hiddenFrame" style="display:none;"></iframe>
-
 <div class="toast" id="toast">Copied!</div>
 
 <script>
@@ -108,6 +106,7 @@ const refLinkEl = document.getElementById('refLink');
 const qrImgEl = document.getElementById('qrImg');
 const toast = document.getElementById('toast');
 const BASE_URL = "https://vigneshkumar8576710-crypto.github.io/redeem-referral.html";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwFtsBxy6SWpp48yk_fmMguknQ7PkMdxu-8J4a0tbA3omBYqE1a-OljH74yysP_rDlx2g/exec";
 
 // Prefill referral code if ?ref= exists in URL
 window.addEventListener('DOMContentLoaded', () => {
@@ -138,30 +137,63 @@ function copyText(text){
   showToast("Copied!");
 }
 
+async function getExistingCode(email){
+  const res = await fetch(`${SHEETS_URL}?email=${encodeURIComponent(email)}`);
+  return res.json();
+}
+
+async function checkReferralCode(code){
+  if(!code) return {exists:true};
+  const res = await fetch(`${SHEETS_URL}?ref=${encodeURIComponent(code)}`);
+  return res.json();
+}
+
 form.addEventListener('submit', async e => {
   e.preventDefault();
-
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const refInput = document.getElementById('refInput').value.trim();
 
-  // 1️⃣ Validate referral code (optional)
-  if(refInput && refInput.length > 0){
-    // optionally, add fetch GET to check existence
+  // 1️⃣ Validate entered referral code
+  if(refInput){
+    const refData = await checkReferralCode(refInput);
+    if(!refData.exists){
+      showToast("Entered referral code does not exist!");
+      return;
+    }
   }
 
-  // 2️⃣ Generate new code & link
-  const myCode = randomCode();
-  const myLink = `${BASE_URL}?ref=${myCode}`;
+  // 2️⃣ Check if email already exists
+  let myCode, myLink;
+  const emailData = await getExistingCode(email);
 
-  // 3️⃣ Fill hidden inputs
+  if(emailData.status === "exists"){
+    myCode = emailData.code;
+    myLink = emailData.link;
+  } else {
+    myCode = randomCode();
+    myLink = `${BASE_URL}?ref=${myCode}`;
+
+    // 3️⃣ Submit new entry to Google Sheets
+    const formData = new URLSearchParams();
+    formData.append("Name", name);
+    formData.append("Email", email);
+    formData.append("ReferralUsed", refInput || "");
+    formData.append("MyCode", myCode);
+    formData.append("MyLink", myLink);
+
+    fetch(SHEETS_URL, {
+      method: "POST",
+      body: formData
+    })
+    .then(res=>res.json())
+    .then(console.log)
+    .catch(console.error);
+  }
+
+  // 4️⃣ Show referral info
   document.getElementById('myCodeInput').value = myCode;
   document.getElementById('myLinkInput').value = myLink;
-
-  // 4️⃣ Submit form (to Google Sheets)
-  form.submit();
-
-  // 5️⃣ Update UI immediately
   refCodeEl.textContent = myCode;
   refLinkEl.innerHTML = `<a href="${myLink}" target="_blank">${myLink}</a>`;
   qrImgEl.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(myLink);
