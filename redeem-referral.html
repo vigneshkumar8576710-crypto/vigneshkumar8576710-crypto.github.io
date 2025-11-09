@@ -168,21 +168,21 @@
       myLink = `${BASE_URL}?ref=${myCode}`;
 
       // 3️⃣ Send new entry to Google Sheets
-      fetch(SHEETS_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Name: name,
-          Email: email,
-          ReferralUsed: refInput || "",
-          MyCode: myCode,
-          MyLink: myLink
-        })
-      })
-      .then(res => res.json())
-      .then(console.log)
-      .catch(console.error);
-    }
+      const formData = new URLSearchParams();
+formData.append("Name", name);
+formData.append("Email", email);
+formData.append("ReferralUsed", refInput || "");
+formData.append("MyCode", myCode);
+formData.append("MyLink", myLink);
+
+fetch(SHEETS_URL, {
+  method: "POST",
+  body: formData
+})
+.then(res => res.json())
+.then(console.log)
+.catch(console.error);
+
 
     // 4️⃣ Show referral info
     document.getElementById('myCodeInput').value = myCode;
