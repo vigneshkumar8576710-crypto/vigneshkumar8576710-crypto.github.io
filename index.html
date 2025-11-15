@@ -145,21 +145,56 @@
     document.getElementById("year").textContent = new Date().getFullYear();
 
     // Comment Section Logic
-    const form = document.getElementById("commentForm");
-    const commentsList = document.getElementById("commentsList");
+<form id="commentForm">
+  <input type="text" id="name" placeholder="Your Name" required>
+  <textarea id="comment" placeholder="Write your comment" required></textarea>
+  <button type="submit">Submit</button>
+</form>
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const comment = document.getElementById("comment").value.trim();
-      if(name && comment){
-        const commentDiv = document.createElement("div");
-        commentDiv.className = "bg-white p-4 rounded-lg shadow";
-        commentDiv.innerHTML = `<strong>${name}</strong><p class="mt-1">${comment}</p>`;
-        commentsList.prepend(commentDiv);
-        form.reset();
-      }
+<div id="commentsList"></div>
+
+<script>
+const form = document.getElementById("commentForm");
+const commentsList = document.getElementById("commentsList");
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwSwlVf1psK2_bKJsH261tVnbRkozQDGjEnBLu6lKHAsz04VJ3f9DtWkqzfBrxg5JKfKw/exec"; // Replace with your deployed Apps Script URL
+
+// Submit comment
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const comment = document.getElementById("comment").value.trim();
+  if(name && comment){
+    fetch(webAppUrl, {
+      method: "POST",
+      body: new URLSearchParams({name: name, comment: comment})
+    }).then(() => {
+      form.reset();
+      loadComments();
     });
+  }
+});
+
+// Load comments
+function loadComments(){
+  fetch(webAppUrl + "?action=getComments")
+    .then(res => res.json())
+    .then(data => {
+      commentsList.innerHTML = "";
+      data.reverse().forEach(row => {
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #ccc";
+        div.innerHTML = `<strong>${row[0]}</strong>: ${row[1]}`;
+        commentsList.appendChild(div);
+      });
+    });
+}
+
+// Load comments on page load
+loadComments();
+</script>
+
+
   </script>
 
 </body>
