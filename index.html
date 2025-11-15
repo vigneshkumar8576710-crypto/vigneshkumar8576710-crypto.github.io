@@ -154,74 +154,80 @@
 <div id="commentsList"></div>
 
 <script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxpUAOS95P-z0vNbrXIl0n8sOem4Lz_Wq6JI59SGn1CfgIu4swqgtgIZDHb0EXZ6ld4tA/exec";
-const form = document.getElementById("commentForm");
-const commentsList = document.getElementById("commentsList");
+  // Year in Footer
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-form.addEventListener("submit", function(e) {
-  e.preventDefault();
+  // -----------------------------
+  // COMMENT SYSTEM CODE (FIXED)
+  // -----------------------------
 
-  const name = document.getElementById("name").value.trim();
-  const comments = document.getElementById("comment").value.trim();  // Changed to comments
+  const webAppUrl = "https://script.google.com/macros/s/AKfycbxpUAOS95P-z0vNbrXIl0n8sOem4Lz_Wq6JI59SGn1CfgIu4swqgtgIZDHb0EXZ6ld4tA/exec";
+  const form = document.getElementById("commentForm");
+  const commentsList = document.getElementById("commentsList");
 
-  if (!name || !comments) return alert("Enter name and comment");
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-  fetch(webAppUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      name: name,
-      comments: comments   // FIXED: must match Apps Script
+    const name = document.getElementById("name").value.trim();
+    const comments = document.getElementById("comment").value.trim();
+
+    if (!name || !comments) return alert("Enter name and comment");
+
+    fetch(webAppUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        name: name,
+        comments: comments
+      })
     })
-  })
-  .then(res => res.json())
-  .then(json => {
-    if (json.status === "ok") {
-      form.reset();
-      loadComments();
-    } else {
-      alert("Error: " + (json.message || "Unknown error"));
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Network error. Check console.");
-  });
-});
-
-
-function loadComments() {
-  fetch(webAppUrl + "?action=getComments")
     .then(res => res.json())
-    .then(data => {
-      commentsList.innerHTML = "";
-      data.reverse().forEach(row => {
-
-        const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #ccc";
-
-        div.innerHTML = `
-          <strong>${escapeHtml(row[0])}</strong><br>
-          ${escapeHtml(row[1])}<br>
-          <small>${escapeHtml(row[2])}</small>   <!-- Added timestamp -->
-        `;
-
-        commentsList.appendChild(div);
-      });
+    .then(json => {
+      if (json.status === "ok") {
+        form.reset();
+        loadComments();
+      } else {
+        alert("Error: " + (json.message || "Unknown error"));
+      }
     })
-    .catch(err => console.error("Load error:", err));
-}
+    .catch(err => {
+      console.error(err);
+      alert("Network error");
+    });
+  });
 
+  function loadComments() {
+    fetch(webAppUrl + "?action=getComments")
+      .then(res => res.json())
+      .then(data => {
+        commentsList.innerHTML = "";
+        data.reverse().forEach(row => {
+          const div = document.createElement("div");
+          div.className = "p-4 bg-white rounded-lg shadow border border-gray-200";
 
-// avoid HTML injection
-function escapeHtml(s){ 
-  return String(s).replace(/[&<>"']/g, c=>({ 
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' 
-  }[c])); 
-}
+          div.innerHTML = `
+            <strong class="text-indigo-700">${escapeHtml(row[0])}</strong><br>
+            <p class="mt-1">${escapeHtml(row[1])}</p>
+            <small class="text-gray-500">${escapeHtml(row[2])}</small>
+          `;
 
-loadComments();
+          commentsList.appendChild(div);
+        });
+      })
+      .catch(err => console.error("Load error:", err));
+  }
+
+  function escapeHtml(s) { 
+    return String(s).replace(/[&<>"']/g, c => ({ 
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;' 
+    }[c]));
+  }
+
+  loadComments();
 </script>
 
 
