@@ -154,21 +154,25 @@
 <div id="commentsList"></div>
 
 <script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycby-E4C-nomByHSBLvmtHvI5AKifUPv5F57l81blhgV2HrAE9pI70jS9Ab_BoZ9rWDTDjg/exec";
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxpUAOS95P-z0vNbrXIl0n8sOem4Lz_Wq6JI59SGn1CfgIu4swqgtgIZDHb0EXZ6ld4tA/exec";
 const form = document.getElementById("commentForm");
 const commentsList = document.getElementById("commentsList");
 
 form.addEventListener("submit", function(e) {
   e.preventDefault();
-  const name = document.getElementById("name").value.trim();
-  const comment = document.getElementById("comment").value.trim();
-  if (!name || !comment) return alert("Enter name and comment");
 
-  // POST form-encoded
+  const name = document.getElementById("name").value.trim();
+  const comments = document.getElementById("comment").value.trim();  // Changed to comments
+
+  if (!name || !comments) return alert("Enter name and comment");
+
   fetch(webAppUrl, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ name: name, comment: comment }).toString()
+    body: new URLSearchParams({
+      name: name,
+      comments: comments   // FIXED: must match Apps Script
+    })
   })
   .then(res => res.json())
   .then(json => {
@@ -176,7 +180,7 @@ form.addEventListener("submit", function(e) {
       form.reset();
       loadComments();
     } else {
-      alert("Error: " + (json.message || "unknown"));
+      alert("Error: " + (json.message || "Unknown error"));
     }
   })
   .catch(err => {
@@ -185,27 +189,41 @@ form.addEventListener("submit", function(e) {
   });
 });
 
+
 function loadComments() {
   fetch(webAppUrl + "?action=getComments")
     .then(res => res.json())
     .then(data => {
       commentsList.innerHTML = "";
       data.reverse().forEach(row => {
+
         const div = document.createElement("div");
         div.style.padding = "10px";
         div.style.borderBottom = "1px solid #ccc";
-        div.innerHTML = `<strong>${escapeHtml(row[0])}</strong>: ${escapeHtml(row[1])}`;
+
+        div.innerHTML = `
+          <strong>${escapeHtml(row[0])}</strong><br>
+          ${escapeHtml(row[1])}<br>
+          <small>${escapeHtml(row[2])}</small>   <!-- Added timestamp -->
+        `;
+
         commentsList.appendChild(div);
       });
     })
     .catch(err => console.error("Load error:", err));
 }
 
-// small helper to avoid HTML injection
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// avoid HTML injection
+function escapeHtml(s){ 
+  return String(s).replace(/[&<>"']/g, c=>({ 
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' 
+  }[c])); 
+}
 
 loadComments();
 </script>
+
 
 
   </script>
