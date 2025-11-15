@@ -154,83 +154,77 @@
 <div id="commentsList"></div>
 
 <script>
-  // Year in Footer
-  document.getElementById("year").textContent = new Date().getFullYear();
+// Year in Footer
+document.getElementById("year").textContent = new Date().getFullYear();
 
-  // -----------------------------
-  // COMMENT SYSTEM CODE (FIXED)
-  // -----------------------------
+// -----------------------------
+// COMMENT SYSTEM CODE (FIXED)
+// -----------------------------
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwMS1yWTTkvT37JX310ZgbiPdeLoB6iG60iE14K5yWVmP1NbPLdJcvCgVPKs50XH5o65Q/exec";
+const form = document.getElementById("commentForm");
+const commentsList = document.getElementById("commentsList");
 
-  const webAppUrl = "https://script.google.com/macros/s/AKfycbwMS1yWTTkvT37JX310ZgbiPdeLoB6iG60iE14K5yWVmP1NbPLdJcvCgVPKs50XH5o65Q/exec";
-  const form = document.getElementById("commentForm");
-  const commentsList = document.getElementById("commentsList");
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const comments = document.getElementById("comment").value.trim();
 
-    const name = document.getElementById("name").value.trim();
-    const comments = document.getElementById("comment").value.trim();
+  if (!name || !comments) return alert("Enter name and comment");
 
-    if (!name || !comments) return alert("Enter name and comment");
-
-    fetch(webAppUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        name: name,
-        comments: comments
-      })
-    })
-    .then(res => res.json())
-    .then(json => {
-      if (json.status === "ok") {
-        form.reset();
-        loadComments();
-      } else {
-        alert("Error: " + (json.message || "Unknown error"));
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Network error");
-    });
+  fetch(webAppUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ name, comments })
+  })
+  .then(res => res.json())
+  .then(json => {
+    if (json.status === "ok") {
+      form.reset();
+      loadComments();
+    } else {
+      alert("Error: " + (json.message || "Unknown error"));
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Network error");
   });
+});
 
-  function loadComments() {
-    fetch(webAppUrl + "?action=getComments")
-      .then(res => res.json())
-      .then(data => {
-        commentsList.innerHTML = "";
-        data.reverse().forEach(row => {
-          const div = document.createElement("div");
-          div.className = "p-4 bg-white rounded-lg shadow border border-gray-200";
+function loadComments() {
+  fetch(webAppUrl + "?action=getComments")
+    .then(res => res.json())
+    .then(data => {
+      commentsList.innerHTML = "";
+      data.reverse().forEach(row => {
+        const div = document.createElement("div");
+        div.className = "p-4 bg-white rounded-lg shadow border border-gray-200";
 
-          div.innerHTML = `
-            <strong class="text-indigo-700">${escapeHtml(row[0])}</strong><br>
-            <p class="mt-1">${escapeHtml(row[1])}</p>
-            <small class="text-gray-500">${escapeHtml(row[2])}</small>
-          `;
+        div.innerHTML = `
+          <strong class="text-indigo-700">${escapeHtml(row[0])}</strong><br>
+          <p class="mt-1">${escapeHtml(row[1])}</p>
+          <small class="text-gray-500">${escapeHtml(row[2])}</small>
+        `;
 
-          commentsList.appendChild(div);
-        });
-      })
-      .catch(err => console.error("Load error:", err));
-  }
+        commentsList.appendChild(div);
+      });
+    })
+    .catch(err => console.error("Load error:", err));
+}
 
-  function escapeHtml(s) { 
-    return String(s).replace(/[&<>"']/g, c => ({ 
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;' 
-    }[c]));
-  }
+function escapeHtml(s) { 
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
 
-  loadComments();
+loadComments();
 </script>
-
-
 
   </script>
 
