@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home Page -->
   <url>
     <loc>https://vigneshkumar8576710-crypto.github.io/</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2025-11-18</lastmod>
     <priority>1.0</priority>
   </url>
+
+  <!-- Referral Page -->
+  <url>
+    <loc>https://vigneshkumar8576710-crypto.github.io/redeem-referral.html</loc>
+    <lastmod>2025-11-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  
 </urlset>
